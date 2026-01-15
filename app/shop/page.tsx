@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createBrowserClient } from "@/lib/supabase/client"
 import { Header } from "@/components/header"
@@ -20,7 +20,8 @@ function money(v: any) {
   return `৳${n.toLocaleString()}`
 }
 
-export default function ShopPage() {
+// 1. Rename your original component logic to "ShopContent"
+function ShopContent() {
   const router = useRouter()
   const params = useSearchParams()
   const supabase = createBrowserClient()
@@ -131,79 +132,94 @@ export default function ShopPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <Header />
-      <div className="max-w-6xl mx-auto p-6 space-y-6">
-        <div className="glass-panel neon-border rounded-2xl p-6 flex flex-col gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-100">Shop</h1>
-            <p className="text-gray-400 mt-2">Browse products and add them to your cart.</p>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-3">
-            <Input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search products..."
-              className="bg-black/40 border-cyan-500/20 text-gray-200"
-            />
-            <Select
-              value={categoryId}
-              onValueChange={(v) => {
-                setCategoryId(v)
-                const url = v === "all" ? "/shop" : `/shop?category_id=${encodeURIComponent(v)}`
-                router.push(url)
-              }}
-            >
-              <SelectTrigger className="w-[240px] bg-black/40 border-cyan-500/20">
-                <SelectValue placeholder="Filter category" />
-              </SelectTrigger>
-              <SelectContent className="bg-black border border-cyan-500/30">
-                <SelectItem value="all">All categories</SelectItem>
-                {categories.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name || c.slug || c.id}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <div className="max-w-6xl mx-auto p-6 space-y-6">
+      <div className="glass-panel neon-border rounded-2xl p-6 flex flex-col gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-100">Shop</h1>
+          <p className="text-gray-400 mt-2">Browse products and add them to your cart.</p>
         </div>
 
-        <div className="glass-panel neon-border rounded-2xl p-6">
-          {loading ? (
-            <div className="flex items-center gap-2 text-gray-400">
-              <Loader className="w-4 h-4 animate-spin" /> Loading products...
-            </div>
-          ) : visible.length === 0 ? (
-            <div className="text-gray-400">No products found.</div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visible.map((p) => {
-                const img = (p as any).image_url || (p as any).image || "https://placehold.co/800x800?text=%20"
-                return (
-                  <div key={p.id} className="rounded-2xl overflow-hidden border border-cyan-500/20 bg-black/30">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img} alt={p.name || ""} className="w-full h-52 object-cover" />
-                    <div className="p-4 space-y-2">
-                      <div className="font-semibold text-gray-100 line-clamp-2">{p.name || "(unnamed)"}</div>
-                      <div className="text-cyan-300 font-bold">{money((p as any).price)}</div>
-                      <Button
-                        className="w-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-200"
-                        onClick={() => addToCart(p)}
-                        disabled={!!adding[p.id]}
-                      >
-                        {adding[p.id] ? <Loader className="w-4 h-4 mr-2 animate-spin" /> : <ShoppingCart className="w-4 h-4 mr-2" />}
-                        Add to cart
-                      </Button>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
+        <div className="flex flex-col md:flex-row gap-3">
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search products..."
+            className="bg-black/40 border-cyan-500/20 text-gray-200"
+          />
+          <Select
+            value={categoryId}
+            onValueChange={(v) => {
+              setCategoryId(v)
+              const url = v === "all" ? "/shop" : `/shop?category_id=${encodeURIComponent(v)}`
+              router.push(url)
+            }}
+          >
+            <SelectTrigger className="w-[240px] bg-black/40 border-cyan-500/20">
+              <SelectValue placeholder="Filter category" />
+            </SelectTrigger>
+            <SelectContent className="bg-black border border-cyan-500/30">
+              <SelectItem value="all">All categories</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name || c.slug || c.id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
+
+      <div className="glass-panel neon-border rounded-2xl p-6">
+        {loading ? (
+          <div className="flex items-center gap-2 text-gray-400">
+            <Loader className="w-4 h-4 animate-spin" /> Loading products...
+          </div>
+        ) : visible.length === 0 ? (
+          <div className="text-gray-400">No products found.</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {visible.map((p) => {
+              const img = (p as any).image_url || (p as any).image || "https://placehold.co/800x800?text=%20"
+              return (
+                <div key={p.id} className="rounded-2xl overflow-hidden border border-cyan-500/20 bg-black/30">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={img} alt={p.name || ""} className="w-full h-52 object-cover" />
+                  <div className="p-4 space-y-2">
+                    <div className="font-semibold text-gray-100 line-clamp-2">{p.name || "(unnamed)"}</div>
+                    <div className="text-cyan-300 font-bold">{money((p as any).price)}</div>
+                    <Button
+                      className="w-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-200"
+                      onClick={() => addToCart(p)}
+                      disabled={!!adding[p.id]}
+                    >
+                      {adding[p.id] ? <Loader className="w-4 h-4 mr-2 animate-spin" /> : <ShoppingCart className="w-4 h-4 mr-2" />}
+                      Add to cart
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// 2. Export the main page wrapped in Suspense
+export default function ShopPage() {
+  return (
+    <main className="min-h-screen bg-black text-white">
+      <Header />
+      <Suspense
+        fallback={
+          <div className="max-w-6xl mx-auto p-6 flex justify-center text-gray-400">
+             <Loader className="w-6 h-6 animate-spin mr-2" /> Loading Shop...
+          </div>
+        }
+      >
+        <ShopContent />
+      </Suspense>
       <Footer />
     </main>
   )
