@@ -5,11 +5,11 @@ import Link from "next/link"
 import { Menu, X, Search, ShoppingCart, User } from "lucide-react"
 import { useFeatureFlag } from "@/hooks/use-feature-flag"
 import { NotificationsPanel } from "@/components/notifications-panel"
-import { LoginModal } from "@/components/login-modal" // Added import for LoginModal
+import { LoginModal } from "@/components/login-modal"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isLoginOpen, setIsLoginOpen] = useState(false) // Added login modal state
+  const [isLoginOpen, setIsLoginOpen] = useState(false)
   const { isEnabled: aiSearchEnabled } = useFeatureFlag("ai_search_enabled")
 
   return (
@@ -22,6 +22,7 @@ export function Header() {
             <Link href="/" className="flex items-center gap-3 group">
               <div className="relative w-12 h-12">
                 <div className="absolute inset-0 bg-cyan-500 rounded-lg blur opacity-50 group-hover:opacity-100 transition-opacity" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/manaf-mart-logo.jpg"
                   alt="Manaf Mart Logo"
@@ -47,6 +48,7 @@ export function Header() {
               </div>
             )}
 
+            {/* Desktop Navigation - Admin Removed */}
             <nav className="hidden lg:flex items-center gap-6">
               <Link href="/categories" className="text-sm font-medium hover:text-cyan-400 transition-colors">
                 Categories
@@ -56,9 +58,6 @@ export function Header() {
               </Link>
               <Link href="/elite-drops" className="text-sm font-medium hover:text-cyan-400 transition-colors">
                 Elite Drops
-              </Link>
-              <Link href="/admin" className="text-sm font-medium hover:text-cyan-400 transition-colors">
-                Admin
               </Link>
             </nav>
 
@@ -74,6 +73,8 @@ export function Header() {
                 <ShoppingCart className="w-5 h-5" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-purple-500 rounded-full" />
               </Link>
+              
+              {/* Login Button */}
               <button
                 onClick={() => setIsLoginOpen(true)}
                 className="p-2 text-white hover:text-cyan-400 transition-colors hidden sm:block"
@@ -90,6 +91,7 @@ export function Header() {
             </div>
           </div>
 
+          {/* Mobile Navigation - Admin Removed */}
           {isMenuOpen && (
             <div className="lg:hidden border-t border-cyan-500/30 py-4 space-y-4">
               <Link href="/categories" className="block text-sm font-medium hover:text-cyan-400 transition-colors">
@@ -100,9 +102,6 @@ export function Header() {
               </Link>
               <Link href="/elite-drops" className="block text-sm font-medium hover:text-cyan-400 transition-colors">
                 Elite Drops
-              </Link>
-              <Link href="/admin" className="block text-sm font-medium hover:text-cyan-400 transition-colors">
-                Admin
               </Link>
             </div>
           )}
